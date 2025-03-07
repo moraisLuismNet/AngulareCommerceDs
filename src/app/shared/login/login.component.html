@@ -1,0 +1,33 @@
+<div class="text-center">
+  <form class="form-signin" #fLogin="ngForm" (submit)="login()">
+    <img class="mb-4" src="src/assets/img/disco_commerce_2g.jpg" alt="disco_commerce" width="152" height="152">
+    <h1 class="h3 mb-3 font-weight-normal">Login</h1>
+
+    <div class="form-group">
+      <label for="email" class="sr-only">Usuario</label>
+      <input type="email" class="form-control" placeholder="Email" [(ngModel)]="infoLogin.email" name="email" id="email" required>
+    </div>
+
+    <div class="form-group">
+      <label for="role" class="sr-only">Role</label>
+      <input type="role" class="form-control" placeholder="Role" [(ngModel)]="infoLogin.role" name="role" id="role">
+    </div>
+
+    <div class="form-group">
+      <label for="password" class="sr-only">Password</label>
+      <input type="password" class="form-control" placeholder="Contraseña" name="password" id="password" [(ngModel)]="infoLogin.password" required>
+    </div>
+
+    <button class="btn btn-grey" type="submit" [hidden]="!fLogin.valid">Login</button>
+    <button class="btn btn-grey" type="submit" [hidden]="fLogin.valid" [disabled]="!fLogin.valid" style="cursor:not-allowed">Login</button>
+    <h5 class="h5 mb-5 font-weight-normal">Disco Commerce</h5>
+  </form>
+
+  <div class="mt-3">
+    <p>¿No tienes cuenta? <a [routerLink]="['/register']" class="link-grey">Regístrate aquí</a></p>
+
+  </div>
+
+  <p-toast></p-toast>
+</div>
+
