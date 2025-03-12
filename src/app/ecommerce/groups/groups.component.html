@@ -19,12 +19,6 @@
           </option>
         </select>
       </div>
-      <!-- <div class="form-group" *ngIf="group.photoName">
-        <label for="nombreImagen">Name of the selected image:</label>
-        <input type="text" class="form-control" id="nameImage" [(ngModel)]="group.photoName" name="nameImage"
-          readonly />
-      </div> -->
-      <!-- Display the name of the selected image -->
       <div class="form-group" *ngIf="group.photoName">
         <label for="nameImage" class="small mb-1">Name of the selected image:</label>
         <input
@@ -52,16 +46,25 @@
     </form>
   </div>
   <div class="col-9">
-    <p-table [value]="groups" [paginator]="true" [rows]="5" [showCurrentPageReport]="true"
+    <div class="mb-3">
+      <input
+        type="text"
+        class="form-control"
+        [(ngModel)]="searchText"
+        placeholder="Search by group name"
+        (input)="filterGroups()"
+      />
+    </div>
+    <p-table [value]="filteredGroups" [paginator]="true" [rows]="5" [showCurrentPageReport]="true"
       [tableStyle]="{ 'min-width': '50rem' }"
       currentPageReportTemplate="{first} of {last} of a total of {totalRecords} groups"
       [rowsPerPageOptions]="[5, 10]">
       <ng-template pTemplate="header">
         <tr>
           <th></th>
-          <th style="font-size: 15px;">Name</th>
-          <th style="font-size: 15px;">Music Genre</th>
-          <th style="font-size: 15px;">Total Records</th>
+          <th style="font-size: 15px;" pSortableColumn="nameGroup">Name <p-sortIcon field="nameGroup"></p-sortIcon></th>
+          <th style="font-size: 15px;" pSortableColumn="nameMusicGenre">Music Genre <p-sortIcon field="nameMusicGenre"></p-sortIcon></th>
+          <th style="font-size: 15px;" pSortableColumn="totalRecords">Total Records <p-sortIcon field="totalRecords"></p-sortIcon></th>
           <th></th>
         </tr>
       </ng-template>
@@ -72,11 +75,14 @@
           <td style="font-size: 14px;">{{ group.nameMusicGenre }}</td>
           <td style="font-size: 14px;">{{ group.totalRecords || '' }}</td>
           <td>
-          <td><p-button icon="pi pi-pencil" (click)="edit(group)"
+          <td>
+            <div style="display: flex; gap: 0.2rem;">
+            <p-button icon="pi pi-pencil" (click)="edit(group)"
               styleClass="p-button-rounded p-button-warning"></p-button>
               <p-button icon="pi pi-trash" (click)="confirmDelete(group)" [disabled]="group.totalRecords > 0" styleClass="p-button-rounded p-button-danger"></p-button>
             <p-button icon="pi pi-eye" (click)="showImage(group)" [disabled]="!group.imageGroup"
               styleClass="p-button-rounded p-button-primary"></p-button>
+            </div>
           </td>
         </tr>
       </ng-template>

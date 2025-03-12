@@ -11,8 +11,6 @@ import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
-
-
 @NgModule({
   declarations: [
     NavbarComponent,

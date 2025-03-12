@@ -1,10 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-// import { GenresService } from '../services/genres.services';
-
 import { NgForm } from '@angular/forms';
 import { ConfirmationService } from 'primeng/api';
 import { IGenre } from '../ecommerce.interface';
-import { EcommerceService } from '../ecommerce.service';
+import { GenresService } from '../services/genres.service';
 
 @Component({
   selector: 'app-genres',
@@ -14,14 +12,16 @@ import { EcommerceService } from '../ecommerce.service';
 })
 export class GenresComponent implements OnInit{
   constructor(
-    private ecommerceService: EcommerceService,
+    private genresService: GenresService,
     private confirmationService: ConfirmationService
   ) {}
   @ViewChild('form') form!: NgForm;
   visibleError = false;
   errorMessage = '';
   genres: IGenre[] = [];
+  filteredGenres: IGenre[] = [];
   visibleConfirm = false;
+  searchTerm: string = '';
 
   genre: IGenre = {
     idMusicGenre: 0,
@@ -33,11 +33,12 @@ export class GenresComponent implements OnInit{
   }
 
   getGenres() {
-    this.ecommerceService.getGenres().subscribe({
+      this.genresService.getGenres().subscribe({
       next: (data) => {
         console.log(data);
         this.visibleError = false;
         this.genres = data;
+        this.filteredGenres = data;
       },
       error: (err) => {
         this.visibleError = true;
@@ -48,7 +49,7 @@ export class GenresComponent implements OnInit{
 
   save() {
     if (this.genre.idMusicGenre === 0) {
-      this.ecommerceService.addGenre(this.genre).subscribe({
+        this.genresService.addGenre(this.genre).subscribe({
         next: (data) => {
           this.visibleError = false;
           this.form.reset();
@@ -61,7 +62,7 @@ export class GenresComponent implements OnInit{
         },
       });
     } else {
-      this.ecommerceService.updateGenre(this.genre).subscribe({
+        this.genresService.updateGenre(this.genre).subscribe({
         next: (data) => {
           this.visibleError = false;
           this.cancelEdition();
@@ -99,7 +100,7 @@ export class GenresComponent implements OnInit{
   }
 
   deleteGenre(id: number) {
-    this.ecommerceService.deleteGenre(id).subscribe({
+      this.genresService.deleteGenre(id).subscribe({
       next: (data) => {
         this.visibleError = false;
         this.form.reset({
@@ -114,6 +115,12 @@ export class GenresComponent implements OnInit{
     });
   }
 
+  filterGenres() {
+    const term = this.searchTerm.toLowerCase();
+    this.filteredGenres = this.genres.filter(genre =>
+      genre.nameMusicGenre.toLowerCase().includes(term)
+    );
+  }
   controlError(err: any) {
     if (err.error && typeof err.error === 'object' && err.error.message) {
       this.errorMessage = err.error.message;

@@ -1,23 +1,61 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { Router } from '@angular/router';
+
 
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
-  private emailSubject = new BehaviorSubject<string>(
-    localStorage.getItem('emailUsuario') || ''
-  );
-  email$ = this.emailSubject.asObservable();
+  private emailSubject = new BehaviorSubject<string>("");
+  private roleSubject = new BehaviorSubject<string>("");
 
-  setEmail(email: string): void {
-    localStorage.setItem('emailUsuario', email);
-    this.emailSubject.next(email);
-    console.log('Email establecido en UserService:', email); // Agrega este log
+  constructor(private router: Router) {
+    const user = JSON.parse(sessionStorage.getItem("user") || "{}");
+    if (user) {
+      this.emailSubject.next(user.email);
+      this.roleSubject.next(user.role);
+    }
   }
 
-  clearEmail(): void {
-    localStorage.removeItem('emailUsuario');
-    this.emailSubject.next('');
+  setEmail(email: string) {
+    this.emailSubject.next(email);
+  }
+
+  setRole(role: string) {
+    console.log("Setting Role:", role);
+    this.roleSubject.next(role);
+  }
+
+  getRole(): string {
+    return this.roleSubject.value;
+  }
+
+  get emailUser$() {
+    return this.emailSubject.asObservable();
+  }
+
+  get role$() {
+    return this.roleSubject.asObservable();
+  }
+
+  clearEmail() {
+    this.emailSubject.next("");
+  }
+
+  clearRole() {
+    this.roleSubject.next("");
+  }
+
+  isAdmin(): boolean {
+    return this.roleSubject.value === "Admin";
+  }
+
+  redirectBasedOnRole(): void {
+    if (this.isAdmin()) {
+      this.router.navigate(['/genres']);
+    } else {
+      this.router.navigate(['/']); 
+    }
   }
 }

@@ -1,19 +1,20 @@
 import { inject, NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { GenresComponent } from './ecommerce/genres/genres.component';
 import { AuthGuard } from './guards/auth-guard.service';
 import { LoginComponent } from './shared/login/login.component';
 import { RegisterComponent } from './shared/register/register.component';
-import { GroupsComponent } from './ecommerce/groups/groups.component';
+import { ListgroupsComponent } from './ecommerce/listgroups/listgroups.component';
+import { ListrecordsComponent } from './ecommerce/listrecords/listrecords.component';
 
 const canActivate = () => inject(AuthGuard).isLoggedIn();
 
 const appRoutes: Routes = [
-  { path: '', component: GenresComponent },
-  { path: 'groups', component: GroupsComponent },
+  { path: '', component: ListgroupsComponent },
   { path: 'login', component: LoginComponent },
+  { path: 'listgroups', component: ListgroupsComponent },
+  { path: 'listrecords/:idGroup', component: ListrecordsComponent },
+  { path: '**', redirectTo: '' },
   { path: 'register', component: RegisterComponent },
-
   {
     path: 'ecommerce',
     loadChildren: () =>

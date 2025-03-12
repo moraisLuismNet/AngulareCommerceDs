@@ -42,8 +42,17 @@
       </form>
     </div>
     <div class="col-8">
+      <div class="mb-3">
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="searchTerm"
+          placeholder="Search by name..."
+          (input)="filterGenres()"
+        />
+      </div>
       <p-table
-        [value]="genres"
+        [value]="filteredGenres"
         [paginator]="true"
         [rows]="5"
         [showCurrentPageReport]="true"
@@ -53,8 +62,8 @@
       >
         <ng-template pTemplate="header">
           <tr>
-            <th>Name</th>
-            <th>Total Groups</th>
+            <th pSortableColumn="nameMusicGenre">Name <p-sortIcon field="nameMusicGenre"></p-sortIcon></th>
+            <th pSortableColumn="totalGroups">Total Groups <p-sortIcon field="totalGroups"></p-sortIcon></th>
             <th></th>
           </tr>
         </ng-template>
@@ -62,9 +71,10 @@
           <tr>
             <td>{{ genre.nameMusicGenre }}</td>
             <td>
-              {{ genre.totalGroups}}
+              {{ genre.totalGroups }}
             </td>
             <td>
+              <div style="display: flex; gap: 0.2rem;">
               <p-button
                 icon="pi pi-pencil"
                 (click)="edit(genre)"
@@ -76,6 +86,7 @@
                 styleClass="p-button-rounded p-button-danger"
                 [disabled]="genre.totalGroups > 0"
               ></p-button>
+            </div>
             </td>
           </tr>
         </ng-template>
@@ -86,34 +97,8 @@
         [(visible)]="visibleError"
         [style]="{ width: '50vw' }"
       >
-        <p>
-          {{ errorMessage }}
-        </p>
+        <p>{{ errorMessage }}</p>
       </p-dialog>
     </div>
   </div>
 </div>
-
- <!-- <div class="row mt-4 mx-3">
-  <div class="col-9 mx-auto">
-      <h1>Music Genres</h1>
-        <p-table [value]="genres" [paginator]="true" [rows]="5" [showCurrentPageReport]="true"
-        [tableStyle]="{ 'min-width': '50rem' }"
-        currentPageReportTemplate="{first} of {last} a total of {totalRecords} genres"
-        [rowsPerPageOptions]="[5, 10]">
-        <ng-template pTemplate="header">
-          <tr>
-            <th>Name</th>
-            <th>Total Groups</th>
-            <th></th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-genre>
-          <tr>
-            <td>{{ genre.nameMusicGenre }}</td>
-            <td>{{ genre.totalGroups || '' }}</td>
-          </tr>
-        </ng-template>
-      </p-table>
-    </div>
-</div> -->

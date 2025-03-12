@@ -8,6 +8,15 @@ import { ILoginResponse } from '../interfaces/login.interface';
 export class AuthGuard {
   constructor(private router: Router) {}
 
+  getRole(): string {
+    const userData = sessionStorage.getItem('user');
+    if (userData) {
+      const user: ILoginResponse = JSON.parse(userData);
+      return user.role || '';
+    }
+    return '';
+  }
+
   isLoggedIn() {
     const user = sessionStorage.getItem('user');
     if (user) {

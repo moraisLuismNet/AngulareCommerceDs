@@ -1,9 +1,9 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { EcommerceService } from '../ecommerce.service';
 import { NgForm } from '@angular/forms';
 import { ConfirmationService } from 'primeng/api';
 import { IGroup } from '../ecommerce.interface';
-
+import { GroupsService } from '../services/groups.service';
+import { GenresService } from '../services/genres.service';
 
 @Component({
   selector: 'app-groups',
@@ -17,10 +17,12 @@ export class GroupsComponent implements OnInit {
   visibleError = false;
   errorMessage = '';
   groups: IGroup[] = [];
+  filteredGroups: IGroup[] = [];
   visibleConfirm = false;
   imageGroup = '';
   visiblePhoto = false;
   photo = '';
+  searchText: string = '';
 
   group: IGroup = {
     idGroup: 0,
@@ -34,7 +36,8 @@ export class GroupsComponent implements OnInit {
 
   genres: any[] = [];
   constructor(
-    private ecommerceService: EcommerceService,
+    private groupsService: GroupsService,
+    private genresService: GenresService,
     private confirmationService: ConfirmationService
   ) {}
 
@@ -44,11 +47,12 @@ export class GroupsComponent implements OnInit {
   }
 
   getGroups() {
-    this.ecommerceService.getGroups().subscribe({
+      this.groupsService.getGroups().subscribe({
       next: (data) => {
-        console.log(data);
+        console.log('Groups fetched:', data);
         this.visibleError = false;
         this.groups = data;
+        this.filteredGroups = data;
       },
       error: (err) => {
         this.visibleError = true;
@@ -58,7 +62,7 @@ export class GroupsComponent implements OnInit {
   }
 
   getGenres() {
-      this.ecommerceService.getGenres().subscribe({
+        this.genresService.getGenres().subscribe({
       next: (data) => {
         this.genres = data;
       },
@@ -69,9 +73,19 @@ export class GroupsComponent implements OnInit {
     });
   }
 
+  filterGroups() {
+    this.filteredGroups = this.groups.filter(group =>
+      group.nameGroup.toLowerCase().includes(this.searchText.toLowerCase())
+    );
+  }
+
+  onSearchChange() {
+    this.filterGroups();
+  }
+
   save() {
     if (this.group.idGroup === 0) {
-        this.ecommerceService.addGroup(this.group).subscribe({
+          this.groupsService.addGroup(this.group).subscribe({
         next: (data) => {
           this.visibleError = false;
           this.form.reset();
@@ -84,7 +98,7 @@ export class GroupsComponent implements OnInit {
         },
       });
     } else {
-        this.ecommerceService.updateGroup(this.group).subscribe({
+          this.groupsService.updateGroup(this.group).subscribe({
         next: (data) => {
           this.visibleError = false;
           this.cancelEdition();
@@ -99,21 +113,15 @@ export class GroupsComponent implements OnInit {
     }
   }
 
-  // edit(genre: IGroup) {
-  //   this.group = { ...genre };
-  // }
-
   edit(group: IGroup) {
-    // const musicGenreFind = this.musicGenreName.find(c => c.nameMusicGemre === group.nameMusicGenre);
     this.group = { ...group };
-    // this.group.musicGenreId = musicGenreFind?.idMusicGenre ?? null;
     this.group.photoName = group.imageGroup
       ? this.extractNameImage(group.imageGroup)
-      : ''; // Extract name if it has image
+      : '';
   }
 
   extractNameImage(url: string): string {
-    return url.split('/').pop() || ''; // Extract image name from URL
+    return url.split('/').pop() || '';
   }
 
   cancelEdition() {
@@ -140,7 +148,7 @@ export class GroupsComponent implements OnInit {
   }
 
   deleteGroup(id: number) {
-      this.ecommerceService.deleteGroup(id).subscribe({
+        this.groupsService.deleteGroup(id).subscribe({
       next: (data) => {
         this.visibleError = false;
         this.form.reset({
@@ -154,6 +162,7 @@ export class GroupsComponent implements OnInit {
       },
     });
   }
+
   controlError(err: any) {
     if (err.error && typeof err.error === 'object' && err.error.message) {
       this.errorMessage = err.error.message;

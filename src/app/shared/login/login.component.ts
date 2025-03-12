@@ -4,9 +4,8 @@ import { MessageService } from "primeng/api";
 import { ILogin, ILoginResponse } from "src/app/interfaces/login.interface";
 import { AppService } from "src/app/services/app.service";
 import { AuthGuard } from "src/app/guards/auth-guard.service";
-import { environment } from "src/environments/environment";
 import { UserService } from "src/app/services/user.service";
-
+import { jwtDecode } from "jwt-decode";
 
 @Component({
   selector: "app-login",
@@ -32,43 +31,21 @@ export class LoginComponent implements OnInit {
   ngOnInit() {
     this.userService.setEmail(this.infoLogin.email);
     if (this.authGuard.isLoggedIn()) {
-      this.router.navigateByUrl("/ecommerce/genres");
+      this.router.navigateByUrl("/ecommerce/listgroups");
     }
   }
 
   login() {
-    let role = "User";
-
-    if (
-      this.infoLogin.email === environment.adminEmail &&
-      this.infoLogin.role === "Admin"
-    ) {
-      role = "Admin";
-    } else if (this.infoLogin.role === "Admin") {
-      this.messageService.add({
-        severity: "error",
-        summary: "Error",
-        detail: `${this.infoLogin.email} no tiene el rol Admin`,
-      });
-      return;
-    }
-
     this.appService.login(this.infoLogin).subscribe({
-      next: (data) => {
-        const userInfo: ILoginResponse = {
-          ...data,
-          role: role,
-        };
-
-        sessionStorage.setItem("usuario", JSON.stringify(userInfo));
-
-        if (role === "Admin") {
-          this.router.navigate(["/discos-admin"]);
-        } else {
-          this.router.navigate(["/detalle"], {
-            queryParams: { email: this.infoLogin.email },
-          });
-        }
+      next: (data: ILoginResponse) => {
+        const decodedToken: any = jwtDecode(data.token);
+        //console.log("Decoded Token:", decodedToken);
+        const role = decodedToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+        //console.log("Role from Token:", role);
+        sessionStorage.setItem("user", JSON.stringify({ ...data, role }));
+        this.userService.setEmail(this.infoLogin.email);
+        this.userService.setRole(role);
+        this.userService.redirectBasedOnRole();
       },
       error: (err) => {
         this.messageService.add({
@@ -79,5 +56,5 @@ export class LoginComponent implements OnInit {
       },
     });
   }
-}
 
+}

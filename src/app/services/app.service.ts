@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { ILogin, ILoginResponse } from '../interfaces/login.interface';
+import { IRegister } from '../interfaces/register.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +17,13 @@ export class AppService {
 
   login(credentials: ILogin): Observable<ILoginResponse> {
     return this.http.post<ILoginResponse>(`${this.urlAPI}auth/login`, credentials);
+  }
+
+  register(credenciales: IRegister): Observable<void> {
+    return this.http.post<void>(
+      `${this.urlAPI}users/register`,
+      credenciales
+    );
   }
 
 }
