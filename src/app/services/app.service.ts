@@ -6,7 +6,7 @@ import { ILogin, ILoginResponse } from '../interfaces/login.interface';
 import { IRegister } from '../interfaces/register.interface';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AppService {
   urlAPI: string;
@@ -16,15 +16,13 @@ export class AppService {
   }
 
   login(credentials: ILogin): Observable<ILoginResponse> {
-    return this.http.post<ILoginResponse>(`${this.urlAPI}auth/login`, credentials);
-  }
-
-  register(credenciales: IRegister): Observable<void> {
-    return this.http.post<void>(
-      `${this.urlAPI}users/register`,
-      credenciales
+    return this.http.post<ILoginResponse>(
+      `${this.urlAPI}auth/login`,
+      credentials
     );
   }
 
+  register(user: IRegister) {
+    return this.http.post<any>(`${this.urlAPI}auth/register`, user);
+  }
 }
-

@@ -1,9 +1,19 @@
-import { Component, OnInit, ViewChild, ElementRef } from "@angular/core";
-import { ConfirmationService } from "primeng/api";
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  ElementRef,
+  OnDestroy,
+} from '@angular/core';
+import { ConfirmationService } from 'primeng/api';
 import { NgForm } from '@angular/forms';
-import { IGroup, IRecord } from "../ecommerce.interface";
-import { RecordsService } from "../services/records.service";
-import { GroupsService } from "../services/groups.service";
+import { IRecord } from '../ecommerce.interface';
+import { RecordsService } from '../services/records.service';
+import { GroupsService } from '../services/groups.service';
+import { StockService } from '../services/stock.service';
+import { CartService } from '../services/cart.service';
+import { Subject, takeUntil } from 'rxjs';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-records',
@@ -11,7 +21,7 @@ import { GroupsService } from "../services/groups.service";
   styleUrls: ['./records.component.css'],
   providers: [ConfirmationService],
 })
-export class RecordsComponent implements OnInit {
+export class RecordsComponent implements OnInit, OnDestroy {
   @ViewChild('form') form!: NgForm;
   @ViewChild('fileInput') fileInput!: ElementRef;
   visibleError = false;
@@ -30,35 +40,85 @@ export class RecordsComponent implements OnInit {
     yearOfPublication: null,
     imageRecord: null,
     photo: null,
+    photoName: null,
     price: 0,
     stock: 0,
     discontinued: false,
     groupId: null,
-    nameGroup: ''
+    groupName: '',
+    nameGroup: '',
   };
 
   groups: any[] = [];
   recordService: any;
+  private destroy$ = new Subject<void>();
+
   constructor(
     private recordsService: RecordsService,
     private groupsService: GroupsService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    private stockService: StockService,
+    private cartService: CartService,
+    private userService: UserService
   ) {}
 
   ngOnInit(): void {
     this.getRecords();
     this.getGroups();
+
+    // Subscribe to stock updates
+    this.stockService.stockUpdate$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(({ recordId, newStock }) => {
+        const record = this.records.find((r) => r.idRecord === recordId);
+        if (record) {
+          record.stock = newStock;
+          // Update filtered records as well
+          const filteredRecord = this.filteredRecords.find(
+            (r) => r.idRecord === recordId
+          );
+          if (filteredRecord) {
+            filteredRecord.stock = newStock;
+          }
+        }
+      });
+
+    // Subscribe to cart updates
+    this.cartService.cart$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((cartItems) => {
+        this.records.forEach((record) => {
+          const cartItem = cartItems.find(
+            (item) => item.idRecord === record.idRecord
+          );
+          record.inCart = !!cartItem;
+          record.amount = cartItem ? cartItem.amount || 0 : 0;
+        });
+        this.filteredRecords = [...this.records];
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   getRecords() {
-        this.recordsService.getRecords().subscribe({
-      next: (data) => {
-        console.log(data);
-        this.visibleError = false;
-        this.records = data;
-        this.filteredRecords = data;
+    this.recordsService.getRecords().subscribe({
+      next: (data: any) => {
+        const recordsArray = Array.isArray(data)
+          ? data
+          : Array.isArray(data.$values)
+          ? data.$values
+          : Array.isArray(data.data)
+          ? data.data
+          : [];
+
+        this.records = recordsArray;
+        this.filteredRecords = [...this.records];
       },
       error: (err) => {
+        console.error('Error getting records:', err);
         this.visibleError = true;
         this.controlError(err);
       },
@@ -66,17 +126,19 @@ export class RecordsComponent implements OnInit {
   }
 
   filterRecords() {
-    if (!this.searchText) {
-      this.filteredRecords = this.records;
-    } else {
-      this.filteredRecords = this.records.filter(record => {
-        return (
-          record.nameGroup.toLowerCase().includes(this.searchText.toLowerCase()) ||
-          record.titleRecord.toLowerCase().includes(this.searchText.toLowerCase()) ||
-          (record.yearOfPublication ? record.yearOfPublication.toString().includes(this.searchText) : false)
-        );
-      });
+    if (!this.searchText?.trim()) {
+      this.filteredRecords = [...this.records];
+      return;
     }
+
+    const searchTerm = this.searchText.toLowerCase();
+    this.filteredRecords = this.records.filter((record) => {
+      return (
+        record.titleRecord?.toLowerCase().includes(searchTerm) ||
+        record.groupName?.toLowerCase().includes(searchTerm) ||
+        record.yearOfPublication?.toString().includes(searchTerm)
+      );
+    });
   }
 
   onSearchChange() {
@@ -84,12 +146,28 @@ export class RecordsComponent implements OnInit {
   }
 
   getGroups() {
-        this.groupsService.getGroups().subscribe({
-      next: (data) => {
-        this.visibleError = false;
-        this.groups = data;
+    this.groupsService.getGroups().subscribe({
+      next: (response: any) => {
+        // Flexible handling of different response structures
+        let groupsArray = [];
+
+        if (Array.isArray(response)) {
+          // The answer is a direct array
+          groupsArray = response;
+        } else if (Array.isArray(response.$values)) {
+          // The response has property $values
+          groupsArray = response.$values;
+        } else if (Array.isArray(response.data)) {
+          // The response has data property
+          groupsArray = response.data;
+        } else {
+          console.warn('Unexpected API response structure:', response);
+        }
+
+        this.groups = groupsArray;
       },
       error: (err) => {
+        console.error('Error loading groups:', err);
         this.visibleError = true;
         this.controlError(err);
       },
@@ -100,10 +178,10 @@ export class RecordsComponent implements OnInit {
     const file = event.target.files;
 
     if (file && file.length > 0) {
-        this.record.photo = file[0];
-        this.record.photoName = file[0].name;
+      this.record.photo = file[0];
+      this.record.photoName = file[0].name;
     }
-}
+  }
 
   onAceptar() {
     this.fileInput.nativeElement.value = '';
@@ -121,33 +199,34 @@ export class RecordsComponent implements OnInit {
 
   save() {
     if (this.record.idRecord === 0) {
-            this.recordsService.addRecord(this.record).subscribe({
-            next: (data) => {
-                this.visibleError = false;
-                this.form.reset();
-                this.getRecords();
-            },
-            error: (err) => {
-              console.log(err);
-              this.visibleError = true;
-              this.controlError(err);
-            },
-        });
+      this.recordsService.addRecord(this.record).subscribe({
+        next: (data) => {
+          this.visibleError = false;
+          this.form.reset();
+          this.getRecords();
+        },
+        error: (err) => {
+          console.log(err);
+          this.visibleError = true;
+          this.controlError(err);
+        },
+      });
     } else {
-            this.recordsService.updateRecord(this.record).subscribe({
-            next: (data) => {
-                this.visibleError = false;
-                this.cancelEdition();
-                this.form.reset();
-                this.getRecords();
-            },
-            error: (err) => {
-                this.visibleError = true;
-                this.controlError(err);
-            },
-        });
+      this.recordsService.updateRecord(this.record).subscribe({
+        next: (data) => {
+          this.visibleError = false;
+          this.cancelEdition();
+          this.form.reset();
+          this.getRecords();
+        },
+        error: (err) => {
+          this.visibleError = true;
+          this.controlError(err);
+        },
+      });
     }
-}
+  }
+
   confirmDelete(record: IRecord) {
     this.confirmationService.confirm({
       message: `Delete record ${record.titleRecord}?`,
@@ -160,7 +239,7 @@ export class RecordsComponent implements OnInit {
   }
 
   deleteRecord(id: number) {
-        this.recordsService.deleteRecord(id).subscribe({
+    this.recordsService.deleteRecord(id).subscribe({
       next: (data: IRecord) => {
         this.visibleError = false;
         this.getRecords();
@@ -174,7 +253,21 @@ export class RecordsComponent implements OnInit {
 
   edit(record: IRecord) {
     this.record = { ...record };
-    this.record.photoName = record.imageRecord ? this.extractImageName(record.imageRecord) : '';
+    if (this.record.stock === null || this.record.stock === undefined) {
+      this.record.stock = 1;
+    }
+    this.record.photoName = record.imageRecord
+      ? this.extractImageName(record.imageRecord)
+      : '';
+    // If there is an associated group, make sure the select reflects it
+    if (record.groupId) {
+      const selectedGroup = this.groups.find(
+        (g) => g.idGroup === record.groupId
+      );
+      if (selectedGroup) {
+        this.record.groupName = selectedGroup.nameGroup;
+      }
+    }
   }
 
   extractImageName(url: string): string {
@@ -188,11 +281,13 @@ export class RecordsComponent implements OnInit {
       yearOfPublication: null,
       imageRecord: null,
       photo: null,
+      photoName: null,
       price: 0,
       stock: 0,
       discontinued: false,
       groupId: null,
-      nameGroup: ''
+      groupName: '',
+      nameGroup: '',
     };
   }
 
@@ -206,4 +301,45 @@ export class RecordsComponent implements OnInit {
     }
   }
 
+  addToCart(record: IRecord): void {
+    const userEmail = this.userService.email;
+    if (!userEmail) return;
+
+    this.cartService.addToCart(record).subscribe(
+      (response) => {
+        // Update UI locally
+        record.inCart = true;
+        record.amount = (record.amount || 0) + 1;
+        this.filteredRecords = [...this.records];
+      },
+      (error) => {
+        console.error('Error adding to cart:', error);
+        // Revert local changes if it fails
+        record.inCart = false;
+        record.amount = 0;
+        this.filteredRecords = [...this.records];
+      }
+    );
+  }
+
+  removeFromCart(record: IRecord): void {
+    const userEmail = this.userService.email;
+    if (!userEmail || !record.inCart) return;
+
+    this.cartService.removeFromCart(record).subscribe(
+      (response) => {
+        // Update UI locally
+        record.amount = Math.max(0, (record.amount || 0) - 1);
+        record.inCart = record.amount > 0;
+        this.filteredRecords = [...this.records];
+      },
+      (error) => {
+        console.error('Error removing from cart:', error);
+        // Revert local changes if it fails
+        record.amount = (record.amount || 0) + 1;
+        record.inCart = true;
+        this.filteredRecords = [...this.records];
+      }
+    );
+  }
 }

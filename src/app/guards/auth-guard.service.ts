@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { ILoginResponse } from '../interfaces/login.interface';
+import { jwtDecode } from 'jwt-decode';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthGuard {
   constructor(private router: Router) {}
@@ -17,14 +18,8 @@ export class AuthGuard {
     return '';
   }
 
-  isLoggedIn() {
-    const user = sessionStorage.getItem('user');
-    if (user) {
-      return true;
-    }
-
-    this.router.navigate(['login']);
-    return false;
+  isLoggedIn(): boolean {
+    return !!sessionStorage.getItem('user');
   }
 
   getUser(): string {
@@ -44,5 +39,19 @@ export class AuthGuard {
     }
     return '';
   }
-}
 
+  getCartId(): number | null {
+    const token = this.getToken();
+    if (token) {
+      try {
+        const decodedToken: any = jwtDecode(token);
+        const cartId = decodedToken['CartId'];
+        return cartId !== undefined ? Number(cartId) : null;
+      } catch (error) {
+        console.error('Error decoding token:', error);
+        return null;
+      }
+    }
+    return null;
+  }
+}

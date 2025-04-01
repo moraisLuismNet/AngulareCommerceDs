@@ -47,24 +47,27 @@ export class GroupsComponent implements OnInit {
   }
 
   getGroups() {
-      this.groupsService.getGroups().subscribe({
-      next: (data) => {
-        console.log('Groups fetched:', data);
-        this.visibleError = false;
-        this.groups = data;
-        this.filteredGroups = data;
+    this.groupsService.getGroups().subscribe({
+      next: (data: any) => {
+
+        // Directly assign the response array (without using .$values)
+        this.groups = Array.isArray(data) ? data : [];
+        this.filteredGroups = [...this.groups];
       },
       error: (err) => {
+        console.error('Error fetching groups:', err);
         this.visibleError = true;
-        this.controlError(err);
+        this.errorMessage = 'Failed to load groups. Please try again.';
       },
     });
   }
 
   getGenres() {
-        this.genresService.getGenres().subscribe({
-      next: (data) => {
-        this.genres = data;
+    this.genresService.getGenres().subscribe({
+      next: (data: any) => {
+        // Extract the `$values` property from the response
+        const genresArray = data.$values || []; // If `$values` does not exist, use an empty array
+        this.genres = Array.isArray(genresArray) ? genresArray : [];
       },
       error: (err) => {
         this.visibleError = true;
@@ -74,7 +77,7 @@ export class GroupsComponent implements OnInit {
   }
 
   filterGroups() {
-    this.filteredGroups = this.groups.filter(group =>
+    this.filteredGroups = this.groups.filter((group) =>
       group.nameGroup.toLowerCase().includes(this.searchText.toLowerCase())
     );
   }
@@ -85,7 +88,7 @@ export class GroupsComponent implements OnInit {
 
   save() {
     if (this.group.idGroup === 0) {
-          this.groupsService.addGroup(this.group).subscribe({
+      this.groupsService.addGroup(this.group).subscribe({
         next: (data) => {
           this.visibleError = false;
           this.form.reset();
@@ -98,7 +101,7 @@ export class GroupsComponent implements OnInit {
         },
       });
     } else {
-          this.groupsService.updateGroup(this.group).subscribe({
+      this.groupsService.updateGroup(this.group).subscribe({
         next: (data) => {
           this.visibleError = false;
           this.cancelEdition();
@@ -148,7 +151,7 @@ export class GroupsComponent implements OnInit {
   }
 
   deleteGroup(id: number) {
-        this.groupsService.deleteGroup(id).subscribe({
+    this.groupsService.deleteGroup(id).subscribe({
       next: (data) => {
         this.visibleError = false;
         this.form.reset({
@@ -167,10 +170,8 @@ export class GroupsComponent implements OnInit {
     if (err.error && typeof err.error === 'object' && err.error.message) {
       this.errorMessage = err.error.message;
     } else if (typeof err.error === 'string') {
-
       this.errorMessage = err.error;
     } else {
-
       this.errorMessage = 'An unexpected error has occurred';
     }
   }

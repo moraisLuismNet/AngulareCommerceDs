@@ -2,8 +2,8 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { ConfirmationService } from 'primeng/api';
 import { IGroup } from '../ecommerce.interface';
-import { NavbarComponent } from "../../shared/navbar/navbar.component";
-import { Router } from "@angular/router";
+import { NavbarComponent } from '../../shared/navbar/navbar.component';
+import { Router } from '@angular/router';
 import { GroupsService } from '../services/groups.service';
 import { GenresService } from '../services/genres.service';
 
@@ -44,7 +44,7 @@ export class ListgroupsComponent implements OnInit {
     private groupsService: GroupsService,
     private genresService: GenresService,
     private confirmationService: ConfirmationService,
-    private router: Router,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -53,10 +53,13 @@ export class ListgroupsComponent implements OnInit {
   }
 
   getGroups() {
-      this.groupsService.getGroups().subscribe({
+    this.groupsService.getGroups().subscribe({
       next: (data) => {
         this.visibleError = false;
-        this.groups = data;
+
+        // We check if data has a $values ​​property
+        this.groups = (data as any).$values ? (data as any).$values : data;
+
         this.filterGroups();
       },
       error: (err) => {
@@ -67,7 +70,7 @@ export class ListgroupsComponent implements OnInit {
   }
 
   getGenres() {
-      this.genresService.getGenres().subscribe({
+    this.genresService.getGenres().subscribe({
       next: (data) => {
         this.genres = data;
       },
@@ -89,7 +92,10 @@ export class ListgroupsComponent implements OnInit {
   }
 
   filterGroups() {
-    this.filteredGroups = this.groups.filter(group =>
+    if (!Array.isArray(this.groups)) {
+      this.groups = [];
+    }
+    this.filteredGroups = this.groups.filter((group) =>
       group.nameGroup.toLowerCase().includes(this.searchText.toLowerCase())
     );
   }
@@ -109,8 +115,6 @@ export class ListgroupsComponent implements OnInit {
   }
 
   loadRecords(idGroup: string): void {
-    console.log(`Redirecting to Listrecords with group ID: ${idGroup}`);
     this.router.navigate(['/listrecords', idGroup]);
   }
 }
-

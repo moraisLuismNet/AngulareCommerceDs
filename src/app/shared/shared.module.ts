@@ -12,11 +12,7 @@ import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 @NgModule({
-  declarations: [
-    NavbarComponent,
-    LoginComponent,
-    RegisterComponent
-  ],
+  declarations: [NavbarComponent, LoginComponent, RegisterComponent],
   imports: [
     CommonModule,
     RouterModule,
@@ -29,4 +25,4 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
   exports: [NavbarComponent],
   providers: [MessageService],
 })
-export class SharedModule { }
+export class SharedModule {}

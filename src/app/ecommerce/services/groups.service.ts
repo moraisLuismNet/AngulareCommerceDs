@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { AuthGuard } from 'src/app/guards/auth-guard.service';
 import { IGroup } from '../ecommerce.interface';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class GroupsService {
   urlAPI = environment.urlAPI;
@@ -14,9 +14,16 @@ export class GroupsService {
 
   getGroups(): Observable<IGroup[]> {
     const headers = this.getHeaders();
-    return this.http.get<IGroup[]>(`${this.urlAPI}groups`, {
-      headers,
-    });
+    return this.http
+      .get<any>(`${this.urlAPI}groups`, {
+        headers,
+      })
+      .pipe(
+        map((response) => {
+          const groups = response.$values || [];
+          return Array.isArray(groups) ? groups : [];
+        })
+      );
   }
 
   addGroup(group: IGroup): Observable<IGroup> {
@@ -55,8 +62,42 @@ export class GroupsService {
     });
   }
 
-  getGroupName(idGroup: string) {
-    return this.http.get(`${this.urlAPI}groups/${idGroup}`);
+  getGroupName(idGroup: string | number): Observable<string> {
+    const headers = this.getHeaders();
+    return this.http
+      .get<any>(`${this.urlAPI}groups/${idGroup}`, { headers })
+      .pipe(
+        map((response) => {
+          
+          // Handle direct group object
+          if (
+            response &&
+            typeof response === 'object' &&
+            'nameGroup' in response
+          ) {
+            return response.nameGroup;
+          }
+
+          // Handle $values wrapper
+          if (
+            response &&
+            response.$values &&
+            typeof response.$values === 'object'
+          ) {
+            if (
+              Array.isArray(response.$values) &&
+              response.$values.length > 0
+            ) {
+              return response.$values[0].nameGroup || '';
+            }
+            if ('nameGroup' in response.$values) {
+              return response.$values.nameGroup;
+            }
+          }
+
+          return '';
+        })
+      );
   }
 
   getHeaders(): HttpHeaders {

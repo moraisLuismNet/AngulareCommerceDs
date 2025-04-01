@@ -32,29 +32,29 @@ body {
 .form-signin .form-control:focus {
   z-index: 2;
 }
-.form-signin input[type='email'] {
+.form-signin input[type="email"] {
   margin-bottom: -1px;
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
 }
-.form-signin input[type='password'] {
+.form-signin input[type="password"] {
   margin-bottom: 10px;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
 
 .btn-grey {
-  background-color: #64748B;
+  background-color: #64748b;
   color: white;
-  border-color: #64748B;
+  border-color: #64748b;
 }
 
 .link-grey {
-  color: #64748B;
+  color: #64748b;
 }
 
 .form-control:focus {
-  border-color: #64748B;
-  box-shadow: 0 0 5px #64748B;
+  border-color: #64748b;
+  box-shadow: 0 0 5px #64748b;
   outline: none;
 }

@@ -6,7 +6,7 @@ import { AuthGuard } from 'src/app/guards/auth-guard.service';
 import { IGenre } from '../ecommerce.interface';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class GenresService {
   urlAPI = environment.urlAPI;

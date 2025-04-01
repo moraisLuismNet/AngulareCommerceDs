@@ -8,9 +8,9 @@ import { GenresService } from '../services/genres.service';
   selector: 'app-genres',
   templateUrl: './genres.component.html',
   styleUrls: ['./genres.component.css'],
-  providers: [ConfirmationService]
+  providers: [ConfirmationService],
 })
-export class GenresComponent implements OnInit{
+export class GenresComponent implements OnInit {
   constructor(
     private genresService: GenresService,
     private confirmationService: ConfirmationService
@@ -33,23 +33,25 @@ export class GenresComponent implements OnInit{
   }
 
   getGenres() {
-      this.genresService.getGenres().subscribe({
-      next: (data) => {
-        console.log(data);
+    this.genresService.getGenres().subscribe({
+      next: (data: any) => {
+
         this.visibleError = false;
-        this.genres = data;
-        this.filteredGenres = data;
+
+        // Extract the $values array from the response
+        this.genres = Array.isArray(data.$values) ? data.$values : [];
+        this.filteredGenres = [...this.genres]; // Initialize `filteredGenres` as a copy of `genres`
       },
       error: (err) => {
+        console.error('Error:', err);
         this.visibleError = true;
         this.controlError(err);
       },
     });
   }
-
   save() {
     if (this.genre.idMusicGenre === 0) {
-        this.genresService.addGenre(this.genre).subscribe({
+      this.genresService.addGenre(this.genre).subscribe({
         next: (data) => {
           this.visibleError = false;
           this.form.reset();
@@ -62,7 +64,7 @@ export class GenresComponent implements OnInit{
         },
       });
     } else {
-        this.genresService.updateGenre(this.genre).subscribe({
+      this.genresService.updateGenre(this.genre).subscribe({
         next: (data) => {
           this.visibleError = false;
           this.cancelEdition();
@@ -100,7 +102,7 @@ export class GenresComponent implements OnInit{
   }
 
   deleteGenre(id: number) {
-      this.genresService.deleteGenre(id).subscribe({
+    this.genresService.deleteGenre(id).subscribe({
       next: (data) => {
         this.visibleError = false;
         this.form.reset({
@@ -117,7 +119,7 @@ export class GenresComponent implements OnInit{
 
   filterGenres() {
     const term = this.searchTerm.toLowerCase();
-    this.filteredGenres = this.genres.filter(genre =>
+    this.filteredGenres = this.genres.filter((genre) =>
       genre.nameMusicGenre.toLowerCase().includes(term)
     );
   }
