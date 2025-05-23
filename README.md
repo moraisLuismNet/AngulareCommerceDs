@@ -1,4 +1,4 @@
-## AngulareCommderceDs
+v## AngulareCommderceDs
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.2.14.
 
 ![AngulareCommderceDs](img/e_1.png)
@@ -11,12 +11,15 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 ## environment
 
-```
+```javascript
 export const environment = {
   urlAPI: 'https://localhost:7190/api/',
 };
 
 ```
+
+[DeepWiki moraisLuismNet/AngulareCommerceDs](https://deepwiki.com/moraisLuismNet/AngulareCommerceDs)
+
 
 ## Development server
 
