@@ -1,13 +1,103 @@
-v## AngulareCommderceDs
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.2.14.
+## AngulareCommderceDs
 
-![AngulareCommderceDs](img/e_1.png)
-![AngulareCommderceDs](img/e_2.png)
-![AngulareCommderceDs](img/e_3.png)
-![AngulareCommderceDs](img/e_4.png)
-![AngulareCommderceDs](img/e_5.png)
-![AngulareCommderceDs](img/e_6.png)
+**AngulareCommerceDs** is an e-commerce application developed with Angular. Its main purpose is to allow users to browse and purchase albums from different musical groups and genres, as well as manage their orders and shopping carts. The application has two main areas of functionality: one for general users and one for administrators. For general users (Registration and Login, Product Navigation, Shopping Cart, and Order Management). For administrators (Genre Management, Group Management, Album Management, User Management, Order Management (Admin), and Cart Management (Admin). This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 16.2.14.
 
+![AngulareCommderceDs](img/UML.png)
+
+AngulareCommerceDs/  
+├───app/  
+│   ├───ecommerce/  
+│   │   ├───admin-orders/  
+│   │   │   ├───admin-orders.component.css  
+│   │   │   ├───admin-orders.component.html  
+│   │   │   └───admin-orders.component.ts  
+│   │   ├───cart-details/  
+│   │   │   ├───cart-details.component.css  
+│   │   │   ├───cart-details.component.html  
+│   │   │   └───cart-details.component.ts  
+│   │   ├───carts/  
+│   │   │   ├───carts.component.css  
+│   │   │   ├───carts.component.html  
+│   │   │   └───carts.component.ts  
+│   │   ├───genres/  
+│   │   │   ├───genres.component.html  
+│   │   │   └───genres.component.ts  
+│   │   ├───groups/  
+│   │   │   ├───groups.component.html  
+│   │   │   └───groups.component.ts  
+│   │   ├───listgroups/  
+│   │   │   ├───listgroups.component.html  
+│   │   │   └───listgroups.component.ts  
+│   │   ├───listrecords/  
+│   │   │   ├───listrecords.component.html  
+│   │   │   └───listrecords.component.ts  
+│   │   ├───orders/  
+│   │   │   ├───orders.component.html  
+│   │   │   └───orders.component.ts  
+│   │   ├───records/  
+│   │   │   ├───records.component.html  
+│   │   │   └───records.component.ts  
+│   │   ├───services/  
+│   │   │   ├───cart.service.ts  
+│   │   │   ├───cart-detail.service.ts  
+│   │   │   ├───genres.service.ts  
+│   │   │   ├───groups.service.ts  
+│   │   │   ├───order.service.ts  
+│   │   │   ├───records.service.ts  
+│   │   │   ├───stock.service.ts  
+│   │   │   └───users.service.ts  
+│   │   ├───users/  
+│   │   │   ├───users.component.html  
+│   │   │   └───users.component.ts  
+│   │   ├───ecommerce.component.html  
+│   │   ├───ecommerce.component.ts  
+│   │   ├───ecommerce.interface.ts  
+│   │   ├───ecommerce.module.ts  
+│   │   └───ecommerce-routing.module.ts  
+│   ├───guards/  
+│   │   └───auth-guard.service.ts  
+│   ├───interfaces/  
+│   │   ├───login.interface.ts  
+│   │   └───register.interface.ts  
+│   ├───services/  
+│   │   ├───app.service.ts  
+│   │   └───user.service.ts  
+│   ├───shared/  
+│   │   ├───login/  
+│   │   │   ├───login.component.css  
+│   │   │   ├───login.component.html  
+│   │   │   └───login.component.ts  
+│   │   ├───navbar/  
+│   │   │   ├───navbar.component.html  
+│   │   │   └───navbar.component.ts  
+│   │   ├───register/  
+│   │   │   ├───register.component.css  
+│   │   │   ├───register.component.html  
+│   │   │   └───register.component.ts  
+│   │   └───shared.module.ts  
+│   ├───app.component.html  
+│   ├───app.component.ts  
+│   ├───app.module.ts  
+│   └───app-routing.module.ts  
+├───environments/  
+│   ├───environment.development.ts  
+│   └───environment.ts  
+└───angular.json  
+
+![AngulareCommderceDs](img/1.png)
+![AngulareCommderceDs](img/2.png)
+![AngulareCommderceDs](img/3.png)
+![AngulareCommderceDs](img/4.png)
+![AngulareCommderceDs](img/5.png)
+![AngulareCommderceDs](img/6.png)
+![AngulareCommderceDs](img/7.png)
+![AngulareCommderceDs](img/8.png)
+![AngulareCommderceDs](img/9.png)
+![AngulareCommderceDs](img10.png)
+![AngulareCommderceDs](img/11.png)
+![AngulareCommderceDs](img/12.png)
+![AngulareCommderceDs](img/13.png)
+![AngulareCommderceDs](img/14.png)
 
 ## environment
 
